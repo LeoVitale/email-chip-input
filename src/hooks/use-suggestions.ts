@@ -24,6 +24,12 @@ interface UseSuggestionsOptions {
   debounceMs?: number;
   /** Callback invoked when a suggestion is selected */
   onSelect: (suggestion: Suggestion) => void;
+  /**
+   * Optional callback invoked when a search error occurs.
+   * AbortError is automatically ignored and will not trigger this callback.
+   * If not provided, errors are logged to console in development mode.
+   */
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -89,6 +95,7 @@ export const useSuggestions = ({
   onSearch,
   debounceMs = 300,
   onSelect,
+  onError,
 }: UseSuggestionsOptions): UseSuggestionsReturn => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -98,6 +105,10 @@ export const useSuggestions = ({
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastQueryRef = useRef<string>('');
+  const onErrorRef = useRef(onError);
+
+  // Keep onError ref updated
+  onErrorRef.current = onError;
 
   // Cleanup on unmount
   useEffect(() => {
@@ -153,10 +164,17 @@ export const useSuggestions = ({
         } catch (error) {
           // Ignore abort errors
           if (error instanceof Error && error.name !== 'AbortError') {
-            console.error('Search error:', error);
+            // Call custom error handler if provided, otherwise log to console
+            if (onErrorRef.current) {
+              onErrorRef.current(error);
+            } else if (import.meta.env.DEV) {
+              console.error('Search error:', error);
+            }
           }
+          // Always clean up state on error
           setSuggestions([]);
           setIsVisible(false);
+          setHighlightedIndex(-1);
         } finally {
           setIsLoading(false);
         }

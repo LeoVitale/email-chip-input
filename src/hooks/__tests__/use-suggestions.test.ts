@@ -329,5 +329,93 @@ describe('useSuggestions', () => {
       expect(result.current.highlightedIndex).toBe(-1);
     });
   });
+
+  describe('error handling', () => {
+    it('should call onError callback when search fails', async () => {
+      const searchError = new Error('Search failed');
+      const failingSearch = vi.fn().mockRejectedValue(searchError);
+      const handleError = vi.fn();
+
+      const { result } = renderHook(() =>
+        useSuggestions({
+          onSearch: failingSearch,
+          onSelect: mockOnSelect,
+          debounceMs: 0,
+          onError: handleError,
+        })
+      );
+
+      act(() => {
+        result.current.search('test');
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(0);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(handleError).toHaveBeenCalledWith(searchError);
+      expect(result.current.suggestions).toEqual([]);
+      expect(result.current.isVisible).toBe(false);
+      expect(result.current.highlightedIndex).toBe(-1);
+    });
+
+    it('should not call onError for AbortError', async () => {
+      const abortError = new Error('Aborted');
+      abortError.name = 'AbortError';
+      const abortingSearch = vi.fn().mockRejectedValue(abortError);
+      const handleError = vi.fn();
+
+      const { result } = renderHook(() =>
+        useSuggestions({
+          onSearch: abortingSearch,
+          onSelect: mockOnSelect,
+          debounceMs: 0,
+          onError: handleError,
+        })
+      );
+
+      act(() => {
+        result.current.search('test');
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(0);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it('should clean up state on error', async () => {
+      const searchError = new Error('Search failed');
+      const failingSearch = vi.fn().mockRejectedValue(searchError);
+
+      const { result } = renderHook(() =>
+        useSuggestions({
+          onSearch: failingSearch,
+          onSelect: mockOnSelect,
+          debounceMs: 0,
+        })
+      );
+
+      act(() => {
+        result.current.search('test');
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(0);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(result.current.suggestions).toEqual([]);
+      expect(result.current.isVisible).toBe(false);
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.highlightedIndex).toBe(-1);
+    });
+  });
 });
 
