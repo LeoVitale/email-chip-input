@@ -3,10 +3,10 @@ import type { KeyboardEvent } from 'react';
 import type { EmailChipInputProps, EmailChip as EmailChipType, Suggestion } from '../types';
 import { EmailChip } from '../email-chip';
 import { SuggestionsList } from '../suggestions-list';
-import { useChipNavigation } from '../../../hooks/use-chip-navigation';
-import { useEmailValidation } from '../../../hooks/use-email-validation';
-import { useSuggestions } from '../../../hooks/use-suggestions';
-import { generateId, parseEmailInput, containsDelimiter, splitByDelimiters } from '../../../utils/email-utils';
+import { useChipNavigation } from '../../hooks/use-chip-navigation';
+import { useEmailValidation } from '../../hooks/use-email-validation';
+import { useSuggestions } from '../../hooks/use-suggestions';
+import { generateId, parseEmailInput, containsDelimiter, splitByDelimiters } from '../../utils/email-utils';
 
 /**
  * A controlled email input component that displays email addresses as chips.

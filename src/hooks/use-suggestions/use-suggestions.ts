@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
-import type { Suggestion } from '../../components/EmailChipInput/types';
+import type { Suggestion } from '../../components/types';
 
 /**
  * Function type for searching suggestions.

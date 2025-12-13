@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useChipNavigation } from './use-chip-navigation';
-import type { EmailChip } from '../../components/EmailChipInput/types';
+import type { EmailChip } from '../../components/types';
 import type { KeyboardEvent, RefObject } from 'react';
 
 const createMockChips = (count: number): EmailChip[] =>

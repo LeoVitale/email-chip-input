@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSuggestions } from './use-suggestions';
-import type { Suggestion } from '../../components/EmailChipInput/types';
+import type { Suggestion } from '../../components/types';
 import type { KeyboardEvent } from 'react';
 
 const mockSuggestions: Suggestion[] = [
