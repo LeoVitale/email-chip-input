@@ -1,5 +1,19 @@
 import type { SuggestionsListProps } from './types';
 
+/**
+ * Suggestions dropdown component for email autocomplete.
+ *
+ * Displays a list of email suggestions with:
+ * - Keyboard navigation highlighting
+ * - Mouse hover highlighting
+ * - Click to select
+ * - ARIA listbox semantics for accessibility
+ *
+ * Returns null when not visible or when there are no suggestions.
+ *
+ * @param props - Component props
+ * @returns The rendered suggestions list or null
+ */
 export const SuggestionsList = ({
   suggestions,
   highlightedIndex,

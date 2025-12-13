@@ -8,6 +8,42 @@ import { useEmailValidation } from '../../hooks/use-email-validation';
 import { useSuggestions } from '../../hooks/use-suggestions';
 import { generateId, parseEmailInput, containsDelimiter, splitByDelimiters } from '../../utils/email-utils';
 
+/**
+ * A controlled email input component that displays email addresses as chips.
+ *
+ * Features:
+ * - **Chip creation**: Enter, Tab, comma, semicolon, or blur
+ * - **Multi-email paste**: Automatically splits pasted text by delimiters
+ * - **Keyboard navigation**: Arrow keys to navigate between chips
+ * - **Chip deletion**: Backspace/Delete to remove chips
+ * - **Email validation**: Sync or async validation with visual feedback
+ * - **Autocomplete**: Optional search-based suggestions dropdown
+ * - **Accessibility**: Full ARIA support and keyboard navigation
+ *
+ * @param props - Component props
+ * @returns The rendered email chip input
+ *
+ * @example
+ * ```tsx
+ * const [chips, setChips] = useState<EmailChip[]>([]);
+ *
+ * <EmailChipInput
+ *   value={chips}
+ *   onChange={setChips}
+ *   onSearch={async (query) => {
+ *     const response = await fetch(`/api/contacts?q=${query}`);
+ *     return response.json();
+ *   }}
+ *   validateEmail={(email) => email.endsWith('@company.com')}
+ *   placeholder="Add team members..."
+ *   classNames={{
+ *     container: 'email-input',
+ *     chip: 'chip',
+ *     chipInvalid: 'chip--invalid'
+ *   }}
+ * />
+ * ```
+ */
 export const EmailChipInput = ({
   value,
   onChange,

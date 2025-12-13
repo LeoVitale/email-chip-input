@@ -1,5 +1,17 @@
 import type { EmailChipProps } from './types';
 
+/**
+ * Individual email chip component.
+ *
+ * Displays an email address as an interactive chip with:
+ * - Visual indication of validation status
+ * - Selection state for keyboard navigation
+ * - Delete button for removal
+ * - Keyboard accessibility (Enter/Space to select)
+ *
+ * @param props - Component props
+ * @returns The rendered chip element
+ */
 export const EmailChip = ({
   chip,
   isSelected,
