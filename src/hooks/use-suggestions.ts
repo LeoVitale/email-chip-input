@@ -2,27 +2,89 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { Suggestion } from '../components/EmailChipInput/types';
 
+/**
+ * Function type for searching suggestions.
+ * Should return a Promise that resolves to an array of Suggestion objects.
+ */
 type SearchFn = (query: string) => Promise<Suggestion[]>;
 
+/**
+ * Configuration options for the useSuggestions hook.
+ */
 interface UseSuggestionsOptions {
+  /**
+   * Async function to search for suggestions.
+   * If not provided, suggestions will never be shown.
+   */
   onSearch?: SearchFn;
+  /**
+   * Debounce delay in milliseconds before triggering search.
+   * @default 300
+   */
   debounceMs?: number;
+  /** Callback invoked when a suggestion is selected */
   onSelect: (suggestion: Suggestion) => void;
 }
 
+/**
+ * Return value from the useSuggestions hook.
+ */
 interface UseSuggestionsReturn {
+  /** Current list of suggestions */
   suggestions: Suggestion[];
+  /** Whether a search is currently in progress */
   isLoading: boolean;
+  /** Index of the currently highlighted suggestion (-1 if none) */
   highlightedIndex: number;
+  /** Whether the suggestions dropdown should be visible */
   isVisible: boolean;
+  /** Trigger a search with the given query (debounced) */
   search: (query: string) => void;
+  /** Keyboard event handler for suggestion navigation. Returns true if event was handled. */
   handleKeyDown: (e: KeyboardEvent<HTMLInputElement>) => boolean;
+  /** Handle selection of a suggestion */
   handleSelect: (suggestion: Suggestion) => void;
+  /** Set the highlighted suggestion index */
   handleHighlight: (index: number) => void;
+  /** Close the suggestions dropdown */
   close: () => void;
+  /** Clear suggestions and reset state */
   clear: () => void;
 }
 
+/**
+ * Custom hook for managing autocomplete suggestions with debounced search.
+ *
+ * Features:
+ * - Debounced search to avoid excessive API calls
+ * - Automatic request cancellation when query changes
+ * - Keyboard navigation (ArrowUp/ArrowDown, Enter, Tab, Escape)
+ * - Highlight management for mouse hover
+ *
+ * @param options - Configuration options
+ * @returns Suggestion state and handlers
+ *
+ * @example
+ * ```tsx
+ * const {
+ *   suggestions,
+ *   isVisible,
+ *   highlightedIndex,
+ *   search,
+ *   handleKeyDown,
+ *   handleSelect,
+ *   handleHighlight,
+ *   close
+ * } = useSuggestions({
+ *   onSearch: async (query) => {
+ *     const response = await fetch(`/api/contacts?q=${query}`);
+ *     return response.json();
+ *   },
+ *   debounceMs: 300,
+ *   onSelect: (suggestion) => addChip(suggestion)
+ * });
+ * ```
+ */
 export const useSuggestions = ({
   onSearch,
   debounceMs = 300,

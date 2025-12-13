@@ -1,17 +1,66 @@
 import { useCallback, useRef } from 'react';
 import { defaultEmailValidator } from '../utils/email-utils';
 
+/**
+ * Function type for email validation.
+ * Can be synchronous (returning boolean) or asynchronous (returning Promise<boolean>).
+ */
 type ValidateEmailFn = (email: string) => boolean | Promise<boolean>;
 
+/**
+ * Configuration options for the useEmailValidation hook.
+ */
 interface UseEmailValidationOptions {
+  /**
+   * Custom email validation function.
+   * If not provided, uses the default regex-based validator.
+   * Can be synchronous or asynchronous.
+   */
   validateEmail?: ValidateEmailFn;
 }
 
+/**
+ * Return value from the useEmailValidation hook.
+ */
 interface UseEmailValidationReturn {
+  /**
+   * Asynchronously validate an email address.
+   * Handles both sync and async validators transparently.
+   */
   validate: (email: string) => Promise<boolean>;
+  /**
+   * Synchronously validate an email address.
+   * If the validator is async, assumes valid and defers to async validation.
+   */
   validateSync: (email: string) => boolean;
 }
 
+/**
+ * Custom hook for email validation with support for both sync and async validators.
+ *
+ * Provides two validation methods:
+ * - `validate`: Always returns a Promise, suitable for async workflows
+ * - `validateSync`: Returns immediately, useful for UI feedback
+ *
+ * @param options - Configuration options
+ * @param options.validateEmail - Optional custom validator function
+ * @returns Object containing `validate` and `validateSync` functions
+ *
+ * @example
+ * ```tsx
+ * // Using default validator
+ * const { validate } = useEmailValidation();
+ * const isValid = await validate('user@example.com');
+ *
+ * // Using custom async validator
+ * const { validate } = useEmailValidation({
+ *   validateEmail: async (email) => {
+ *     const response = await fetch(`/api/validate?email=${email}`);
+ *     return response.ok;
+ *   }
+ * });
+ * ```
+ */
 export const useEmailValidation = ({
   validateEmail,
 }: UseEmailValidationOptions = {}): UseEmailValidationReturn => {

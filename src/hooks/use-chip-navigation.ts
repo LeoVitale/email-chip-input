@@ -2,21 +2,71 @@ import { useState, useCallback } from 'react';
 import type { RefObject, KeyboardEvent } from 'react';
 import type { EmailChip } from '../components/EmailChipInput/types';
 
+/**
+ * Configuration options for the useChipNavigation hook.
+ */
 interface UseChipNavigationOptions {
+  /** Array of email chips to navigate through */
   chips: EmailChip[];
+  /** Reference to the input element for focus management */
   inputRef: RefObject<HTMLInputElement | null>;
+  /** Callback invoked when a chip should be deleted */
   onDeleteChip: (id: string) => void;
+  /** Callback invoked when input content changes */
   onInputChange: () => void;
 }
 
+/**
+ * Return value from the useChipNavigation hook.
+ */
 interface UseChipNavigationReturn {
+  /** Index of the currently selected chip, or null if no chip is selected */
   selectedChipIndex: number | null;
+  /** Function to manually set the selected chip index */
   setSelectedChipIndex: (index: number | null) => void;
+  /** Keyboard event handler for chip navigation */
   handleKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
+  /** Click handler for individual chips */
   handleChipClick: (id: string) => void;
+  /** Clear the current chip selection */
   clearSelection: () => void;
 }
 
+/**
+ * Custom hook for managing keyboard navigation between email chips.
+ *
+ * Handles the following keyboard interactions:
+ * - **ArrowLeft/ArrowRight**: Navigate between chips
+ * - **Backspace/Delete**: Delete the selected chip or last chip when input is empty
+ * - **Escape**: Clear selection and focus the input
+ * - **Character keys**: Clear selection and allow typing
+ *
+ * @param options - Configuration options
+ * @returns Navigation state and event handlers
+ *
+ * @example
+ * ```tsx
+ * const {
+ *   selectedChipIndex,
+ *   handleKeyDown,
+ *   handleChipClick,
+ *   clearSelection
+ * } = useChipNavigation({
+ *   chips,
+ *   inputRef,
+ *   onDeleteChip: (id) => setChips(chips.filter(c => c.id !== id)),
+ *   onInputChange: () => searchSuggestions(inputValue)
+ * });
+ *
+ * return (
+ *   <input
+ *     ref={inputRef}
+ *     onKeyDown={handleKeyDown}
+ *     onFocus={clearSelection}
+ *   />
+ * );
+ * ```
+ */
 export const useChipNavigation = ({
   chips,
   inputRef,
