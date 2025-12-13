@@ -24,7 +24,7 @@ body {
   background-color: #202124;
   border-radius: 8px;
   border: 1px solid #3c4043;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Email field row */
@@ -34,6 +34,7 @@ body {
   padding: 8px 16px;
   border-bottom: 1px solid #3c4043;
   min-height: 44px;
+  overflow: visible;
 }
 
 .field-label {
@@ -47,6 +48,7 @@ body {
 .field-content {
   flex: 1;
   position: relative;
+  overflow: visible;
 }
 
 .field-actions {
@@ -82,6 +84,7 @@ body {
   min-height: 36px;
   padding: 4px 0;
   position: relative;
+  width: 100%;
 }
 
 /* Email chip */
@@ -183,7 +186,7 @@ body {
 /* Suggestions dropdown */
 .suggestions-list {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   background-color: #2d2e30;
@@ -191,10 +194,12 @@ body {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   list-style: none;
-  margin-top: 4px;
+  margin: 0;
+  padding: 0;
   max-height: 240px;
   overflow-y: auto;
   z-index: 1000;
+  min-width: 100%;
 }
 
 .suggestion-item {

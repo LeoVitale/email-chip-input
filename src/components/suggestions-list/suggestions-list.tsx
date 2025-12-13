@@ -28,6 +28,7 @@ export const SuggestionsList = ({
 
   return (
     <ul
+      id="email-suggestions"
       role="listbox"
       aria-label="Email suggestions"
       className={classNames?.suggestionsList || undefined}
