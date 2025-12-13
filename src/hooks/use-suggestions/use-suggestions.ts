@@ -185,14 +185,6 @@ export const useSuggestions = ({
 
   const handleSelect = useCallback(
     (suggestion: Suggestion) => {
-      // #region agent log
-      console.log('[DEBUG E] handleSelect called', {suggestionId:suggestion.id,email:suggestion.email,label:suggestion.label,onSelectType:typeof onSelect});
-      fetch('http://127.0.0.1:7242/ingest/058422b9-05d1-4c94-8e00-bb4af62a326d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-suggestions.ts:187',message:'handleSelect called',data:{suggestionId:suggestion.id,email:suggestion.email,label:suggestion.label},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
-      // #region agent log
-      console.log('[DEBUG E] Calling onSelect callback');
-      fetch('http://127.0.0.1:7242/ingest/058422b9-05d1-4c94-8e00-bb4af62a326d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-suggestions.ts:189',message:'Calling onSelect callback',data:{onSelectType:typeof onSelect},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       onSelect(suggestion);
       setSuggestions([]);
       setIsVisible(false);
