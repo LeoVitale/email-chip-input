@@ -1,4 +1,4 @@
-import type { EmailChipProps } from './types';
+import type { EmailChipProps } from '../types';
 
 /**
  * Individual email chip component.

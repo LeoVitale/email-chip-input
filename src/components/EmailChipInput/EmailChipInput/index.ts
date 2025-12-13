@@ -1,0 +1,2 @@
+export { EmailChipInput } from './EmailChipInput';
+

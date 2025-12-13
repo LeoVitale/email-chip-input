@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { useEmailValidation } from '../use-email-validation';
+import { renderHook } from '@testing-library/react';
+import { useEmailValidation } from './use-email-validation';
 
 describe('useEmailValidation', () => {
   describe('validate (async)', () => {

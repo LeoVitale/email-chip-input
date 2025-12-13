@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { defaultEmailValidator } from '../utils/email-utils';
+import { defaultEmailValidator } from '../../utils/email-utils';
 
 /**
  * Function type for email validation.

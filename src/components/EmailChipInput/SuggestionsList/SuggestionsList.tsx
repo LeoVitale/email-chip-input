@@ -1,4 +1,4 @@
-import type { SuggestionsListProps } from './types';
+import type { SuggestionsListProps } from '../types';
 
 /**
  * Suggestions dropdown component for email autocomplete.

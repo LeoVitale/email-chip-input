@@ -5,7 +5,7 @@ import {
   parseEmailInput,
   containsDelimiter,
   splitByDelimiters,
-} from '../email-utils';
+} from './email-utils';
 
 describe('defaultEmailValidator', () => {
   it('should return true for valid email addresses', () => {

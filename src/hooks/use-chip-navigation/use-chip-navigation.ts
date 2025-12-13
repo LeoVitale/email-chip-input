@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { RefObject, KeyboardEvent } from 'react';
-import type { EmailChip } from '../components/EmailChipInput/types';
+import type { EmailChip } from '../../components/EmailChipInput/types';
 
 /**
  * Configuration options for the useChipNavigation hook.

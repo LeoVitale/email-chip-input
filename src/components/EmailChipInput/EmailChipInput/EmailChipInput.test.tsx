@@ -1,17 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { EmailChipInput } from '../email-chip-input';
-import type { EmailChip, Suggestion } from '../types';
+import { EmailChipInput } from './EmailChipInput';
+import type { EmailChip } from '../types';
 
 const mockChips: EmailChip[] = [
   { id: '1', email: 'alice@example.com', label: 'Alice', isValid: true },
   { id: '2', email: 'bob@example.com', isValid: true },
-];
-
-const mockSuggestions: Suggestion[] = [
-  { id: 's1', email: 'charlie@example.com', label: 'Charlie' },
-  { id: 's2', email: 'david@example.com', label: 'David' },
 ];
 
 describe('EmailChipInput', () => {
