@@ -58,6 +58,7 @@ export const EmailChipInput = ({
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isSelectingRef = useRef(false);
 
   const { validate } = useEmailValidation({ validateEmail });
 
@@ -118,14 +119,19 @@ export const EmailChipInput = ({
   // Handle suggestion selection
   const handleSuggestionSelect = useCallback(
     async (suggestion: Suggestion) => {
-      const chip = await createChip(
-        suggestion.label ? `${suggestion.label} <${suggestion.email}>` : suggestion.email
-      );
+      // Set flag to prevent blur interference
+      isSelectingRef.current = true;
+      const inputString = suggestion.label ? `${suggestion.label} <${suggestion.email}>` : suggestion.email;
+      const chip = await createChip(inputString);
       if (chip) {
         onChange([...value, chip]);
       }
       setInputValue('');
-      inputRef.current?.focus();
+      // Reset flag after a short delay to allow onChange to process
+      setTimeout(() => {
+        isSelectingRef.current = false;
+        inputRef.current?.focus();
+      }, 0);
     },
     [createChip, onChange, value]
   );
@@ -243,6 +249,10 @@ export const EmailChipInput = ({
 
   // Handle blur - create chip from remaining input
   const handleBlur = (e: React.FocusEvent) => {
+    // Don't process blur if we're in the middle of selecting a suggestion
+    if (isSelectingRef.current) {
+      return;
+    }
     // Don't create chip if clicking within the container (e.g., suggestions)
     if (containerRef.current?.contains(e.relatedTarget)) {
       return;

@@ -49,7 +49,16 @@ export const SuggestionsList = ({
             aria-selected={isHighlighted}
             data-highlighted={isHighlighted}
             className={itemClassName || undefined}
-            onClick={() => onSelect(suggestion)}
+            onMouseDown={(e) => {
+              // Prevent blur from firing before selection
+              e.preventDefault();
+              // Call onSelect on mousedown to avoid blur event interference
+              onSelect(suggestion);
+            }}
+            onClick={(e) => {
+              // Prevent default to avoid double-firing, but selection already happened in mousedown
+              e.preventDefault();
+            }}
             onMouseEnter={() => onHighlight(index)}
           >
             {suggestion.label ? (

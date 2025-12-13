@@ -148,7 +148,7 @@ describe('SuggestionsList', () => {
         />
       );
 
-      fireEvent.click(screen.getAllByRole('option')[1]);
+      fireEvent.mouseDown(screen.getAllByRole('option')[1]);
 
       expect(handleSelect).toHaveBeenCalledWith(mockSuggestions[1]);
     });
