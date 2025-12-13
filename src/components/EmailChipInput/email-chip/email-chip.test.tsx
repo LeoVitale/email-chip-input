@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EmailChip } from './EmailChip';
+import { EmailChip } from './email-chip';
 import type { EmailChip as EmailChipType } from '../types';
 
 const createMockChip = (overrides: Partial<EmailChipType> = {}): EmailChipType => ({

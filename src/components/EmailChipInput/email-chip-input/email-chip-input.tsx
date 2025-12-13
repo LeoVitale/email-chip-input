@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { EmailChipInputProps, EmailChip as EmailChipType, Suggestion } from '../types';
-import { EmailChip } from '../EmailChip';
-import { SuggestionsList } from '../SuggestionsList';
+import { EmailChip } from '../email-chip';
+import { SuggestionsList } from '../suggestions-list';
 import { useChipNavigation } from '../../../hooks/use-chip-navigation';
 import { useEmailValidation } from '../../../hooks/use-email-validation';
 import { useSuggestions } from '../../../hooks/use-suggestions';

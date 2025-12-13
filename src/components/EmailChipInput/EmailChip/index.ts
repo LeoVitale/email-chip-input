@@ -1,2 +1,0 @@
-export { EmailChip } from './EmailChip';
-

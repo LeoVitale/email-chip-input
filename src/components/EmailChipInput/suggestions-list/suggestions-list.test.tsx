@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SuggestionsList } from './SuggestionsList';
+import { SuggestionsList } from './suggestions-list';
 import type { Suggestion } from '../types';
 
 const mockSuggestions: Suggestion[] = [
