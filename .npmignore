@@ -1,0 +1,57 @@
+# Source files
+src/
+public/
+
+# Config files
+*.config.ts
+*.config.js
+tsconfig*.json
+eslint.config.js
+.eslintrc*
+.prettierrc*
+
+# Development files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+coverage/
+
+# Build tools
+vite.config.ts
+rollup.config.*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Documentation source (if using docs generator)
+docs/
+
+# Demo/example app files
+index.html
+App.tsx
+App.css
+main.tsx
+
+# Misc
+node_modules/
+.env*
+*.log
+*.lock
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Test setup
+src/test/
+
