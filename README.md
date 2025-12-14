@@ -58,7 +58,7 @@ const validateEmail = (email: string): boolean => {
   value={chips}
   onChange={setChips}
   validateEmail={validateEmail}
-/>
+/>;
 ```
 
 ### Async Validation
@@ -74,7 +74,7 @@ const validateEmail = async (email: string): Promise<boolean> => {
   value={chips}
   onChange={setChips}
   validateEmail={validateEmail}
-/>
+/>;
 ```
 
 ### With Autocomplete
@@ -92,24 +92,24 @@ const handleSearch = async (query: string): Promise<Suggestion[]> => {
   onChange={setChips}
   onSearch={handleSearch}
   searchDebounceMs={300}
-/>
+/>;
 ```
 
 ## API Reference
 
 ### Props
 
-| Prop               | Type                                             | Default                      | Description                          |
-| ------------------ | ------------------------------------------------ | ---------------------------- | ------------------------------------ |
-| `value`            | `EmailChipType[]`                                | **Required**                 | Current array of email chips         |
-| `onChange`         | `(chips: EmailChipType[]) => void`               | **Required**                 | Callback when chips change           |
-| `validateEmail`    | `(email: string) => boolean \| Promise<boolean>` | Default regex                | Custom email validation function     |
-| `onSearch`         | `(query: string) => Promise<Suggestion[]>`       | -                            | Async function for autocomplete      |
-| `searchDebounceMs` | `number`                                         | `300`                        | Debounce delay for search (ms)       |
-| `classNames`       | `EmailChipInputClassNames`                       | -                            | CSS class names for styling          |
-| `placeholder`      | `string`                                         | `'Enter email addresses...'` | Input placeholder text               |
-| `ariaLabel`        | `string`                                         | `'Email input'`              | Accessible label                     |
-| `disabled`         | `boolean`                                        | `false`                      | Disable the input                    |
+| Prop               | Type                                             | Default                      | Description                      |
+| ------------------ | ------------------------------------------------ | ---------------------------- | -------------------------------- |
+| `value`            | `EmailChipType[]`                                | **Required**                 | Current array of email chips     |
+| `onChange`         | `(chips: EmailChipType[]) => void`               | **Required**                 | Callback when chips change       |
+| `validateEmail`    | `(email: string) => boolean \| Promise<boolean>` | Default regex                | Custom email validation function |
+| `onSearch`         | `(query: string) => Promise<Suggestion[]>`       | -                            | Async function for autocomplete  |
+| `searchDebounceMs` | `number`                                         | `300`                        | Debounce delay for search (ms)   |
+| `classNames`       | `EmailChipInputClassNames`                       | -                            | CSS class names for styling      |
+| `placeholder`      | `string`                                         | `'Enter email addresses...'` | Input placeholder text           |
+| `ariaLabel`        | `string`                                         | `'Email input'`              | Accessible label                 |
+| `disabled`         | `boolean`                                        | `false`                      | Disable the input                |
 
 ### Types
 
@@ -146,6 +146,7 @@ interface Suggestion {
 The component is unstyled by default. Use the `classNames` prop to apply your own styles.
 
 See the complete **[Styling Guide](./docs/STYLING.md)** for:
+
 - CSS Modules examples
 - Tailwind CSS integration
 - Dark mode support
