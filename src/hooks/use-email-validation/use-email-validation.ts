@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { defaultEmailValidator } from '../../utils/email-utils';
 
 /**
@@ -66,8 +66,10 @@ export const useEmailValidation = ({
 }: UseEmailValidationOptions = {}): UseEmailValidationReturn => {
   const validatorRef = useRef<ValidateEmailFn>(validateEmail || defaultEmailValidator);
 
-  // Keep validator ref updated
-  validatorRef.current = validateEmail || defaultEmailValidator;
+  // Keep validator ref updated using useEffect to avoid updating during render
+  useEffect(() => {
+    validatorRef.current = validateEmail || defaultEmailValidator;
+  }, [validateEmail]);
 
   const validate = useCallback(async (email: string): Promise<boolean> => {
     const trimmedEmail = email.trim();

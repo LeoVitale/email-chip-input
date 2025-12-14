@@ -167,7 +167,7 @@ export const useSuggestions = ({
             // Call custom error handler if provided, otherwise log to console
             if (onErrorRef.current) {
               onErrorRef.current(error);
-            } else if (import.meta.env.DEV) {
+            } else if (process.env.NODE_ENV === 'development') {
               console.error('Search error:', error);
             }
           }

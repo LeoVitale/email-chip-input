@@ -116,7 +116,7 @@ export const useChipNavigation = ({
             break;
 
           case 'Backspace':
-          case 'Delete':
+          case 'Delete': {
             e.preventDefault();
             const chipToDelete = chips[selectedChipIndex];
             if (chipToDelete) {
@@ -129,6 +129,7 @@ export const useChipNavigation = ({
               }
             }
             break;
+          }
 
           case 'Escape':
             e.preventDefault();
