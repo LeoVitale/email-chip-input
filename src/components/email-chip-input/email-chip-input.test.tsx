@@ -249,7 +249,7 @@ describe('EmailChipInput', () => {
 
   describe('styling', () => {
     it('should apply custom class names', () => {
-      render(
+      const { container } = render(
         <EmailChipInput
           value={mockChips}
           onChange={vi.fn()}
@@ -261,7 +261,8 @@ describe('EmailChipInput', () => {
         />
       );
 
-      expect(screen.getByRole('group')).toHaveClass('custom-container');
+      // Container has custom class
+      expect(container.querySelector('.custom-container')).toBeInTheDocument();
       expect(screen.getByRole('combobox')).toHaveClass('custom-input');
     });
   });

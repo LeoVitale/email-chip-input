@@ -1,15 +1,43 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import type { KeyboardEvent } from 'react';
-import type { EmailChipInputProps, EmailChip as EmailChipType, Suggestion } from '../types';
-import { EmailChip } from '../email-chip';
-import { SuggestionsList } from '../suggestions-list';
-import { useChipNavigation } from '../../hooks/use-chip-navigation';
-import { useEmailValidation } from '../../hooks/use-email-validation';
-import { useSuggestions } from '../../hooks/use-suggestions';
-import { generateId, parseEmailInput, containsDelimiter, splitByDelimiters } from '../../utils/email-utils';
+import { useCallback, useMemo } from 'react';
+import type { EmailChipInputProps, EmailChip, Suggestion as EmailSuggestion } from '../types';
+import { ChipInput } from '../chip-input';
+import type { Chip, Suggestion } from '../chip-input/types';
+import { parseEmailInput, defaultEmailValidator } from '../../utils/email-utils';
+
+/**
+ * Convert EmailChip to generic Chip<string>
+ */
+const emailChipToChip = (emailChip: EmailChip): Chip<string> => ({
+  id: emailChip.id,
+  value: emailChip.email,
+  label: emailChip.label,
+  isValid: emailChip.isValid,
+});
+
+/**
+ * Convert generic Chip<string> to EmailChip
+ */
+const chipToEmailChip = (chip: Chip<string>): EmailChip => ({
+  id: chip.id,
+  email: chip.value,
+  label: chip.label,
+  isValid: chip.isValid ?? true,
+});
+
+/**
+ * Convert EmailSuggestion to generic Suggestion<string>
+ */
+const emailSuggestionToSuggestion = (suggestion: EmailSuggestion): Suggestion<string> => ({
+  id: suggestion.id,
+  value: suggestion.email,
+  label: suggestion.label,
+});
 
 /**
  * A controlled email input component that displays email addresses as chips.
+ *
+ * This is a specialized wrapper around the generic ChipInput component,
+ * configured specifically for email address handling.
  *
  * Features:
  * - **Chip creation**: Enter, Tab, comma, semicolon, or blur
@@ -55,268 +83,83 @@ export const EmailChipInput = ({
   ariaLabel = 'Email input',
   disabled = false,
 }: EmailChipInputProps) => {
-  const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isSelectingRef = useRef(false);
+  // Convert EmailChip[] to Chip<string>[]
+  const chips = useMemo(() => value.map(emailChipToChip), [value]);
 
-  const { validate } = useEmailValidation({ validateEmail });
+  // Handle change by converting back to EmailChip[]
+  const handleChange = useCallback(
+    (newChips: Chip<string>[]) => {
+      onChange(newChips.map(chipToEmailChip));
+    },
+    [onChange]
+  );
 
-  // Create chip from email string
-  const createChip = useCallback(
-    async (input: string): Promise<EmailChipType | null> => {
+  // Parse email input with "Name <email>" format support
+  const parseInput = useCallback(
+    (input: string): Pick<Chip<string>, 'value' | 'label'> | null => {
       const { email, label } = parseEmailInput(input);
       if (!email) return null;
-
-      // Check for duplicates
-      const isDuplicate = value.some(
-        (chip) => chip.email.toLowerCase() === email.toLowerCase()
-      );
-      if (isDuplicate) return null;
-
-      const isValid = await validate(email);
-
-      return {
-        id: generateId(),
-        email,
-        label,
-        isValid,
-      };
+      return { value: email, label };
     },
-    [value, validate]
+    []
   );
 
-  // Add chip(s) from input value
-  const addChipsFromInput = useCallback(
-    async (input: string) => {
-      const emails = containsDelimiter(input) ? splitByDelimiters(input) : [input];
-      const newChips: EmailChipType[] = [];
-
-      for (const emailStr of emails) {
-        const chip = await createChip(emailStr);
-        if (chip) {
-          newChips.push(chip);
-        }
+  // Email validation (use default if not provided)
+  const validate = useCallback(
+    (email: string): boolean | Promise<boolean> => {
+      if (validateEmail) {
+        return validateEmail(email);
       }
-
-      if (newChips.length > 0) {
-        onChange([...value, ...newChips]);
-      }
-
-      setInputValue('');
+      return defaultEmailValidator(email);
     },
-    [createChip, onChange, value]
+    [validateEmail]
   );
 
-  // Delete chip by id
-  const deleteChip = useCallback(
-    (id: string) => {
-      onChange(value.filter((chip) => chip.id !== id));
-    },
-    [onChange, value]
-  );
+  // Case-insensitive comparison for emails
+  const isEqual = useCallback((a: string, b: string): boolean => {
+    return a.toLowerCase() === b.toLowerCase();
+  }, []);
 
-  // Handle suggestion selection
-  const handleSuggestionSelect = useCallback(
-    async (suggestion: Suggestion) => {
-      // Set flag to prevent blur interference
-      isSelectingRef.current = true;
-      const inputString = suggestion.label ? `${suggestion.label} <${suggestion.email}>` : suggestion.email;
-      const chip = await createChip(inputString);
-      if (chip) {
-        onChange([...value, chip]);
+  // Normalize emails to lowercase for comparison
+  const normalize = useCallback((email: string): string => {
+    return email.toLowerCase();
+  }, []);
+
+  // Wrap onSearch to convert EmailSuggestion to Suggestion<string>
+  const handleSearch = useMemo(() => {
+    if (!onSearch) return undefined;
+    return async (query: string): Promise<Suggestion<string>[]> => {
+      const emailSuggestions = await onSearch(query);
+      return emailSuggestions.map(emailSuggestionToSuggestion);
+    };
+  }, [onSearch]);
+
+  // Format suggestion for display (email with optional label)
+  const formatSuggestion = useCallback(
+    (suggestion: Suggestion<string>): string => {
+      if (suggestion.label) {
+        return `${suggestion.label} <${suggestion.value}>`;
       }
-      setInputValue('');
-      // Reset flag after a short delay to allow onChange to process
-      setTimeout(() => {
-        isSelectingRef.current = false;
-        inputRef.current?.focus();
-      }, 0);
+      return suggestion.value;
     },
-    [createChip, onChange, value]
+    []
   );
-
-  // Suggestions hook
-  const {
-    suggestions,
-    highlightedIndex,
-    isVisible: suggestionsVisible,
-    search: searchSuggestions,
-    handleKeyDown: handleSuggestionsKeyDown,
-    handleSelect: handleSuggestionsSelect,
-    handleHighlight,
-    close: closeSuggestions,
-    clear: clearSuggestions,
-  } = useSuggestions({
-    onSearch,
-    debounceMs: searchDebounceMs,
-    onSelect: handleSuggestionSelect,
-  });
-
-  // Navigation hook
-  const {
-    selectedChipIndex,
-    handleKeyDown: handleNavigationKeyDown,
-    handleChipClick,
-    clearSelection,
-  } = useChipNavigation({
-    chips: value,
-    inputRef,
-    onDeleteChip: deleteChip,
-    onInputChange: () => {
-      // Search for suggestions when input changes
-      searchSuggestions(inputValue);
-    },
-  });
-
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    
-    // Check if the input contains a delimiter - if so, create chips immediately
-    if (containsDelimiter(newValue)) {
-      addChipsFromInput(newValue);
-      return;
-    }
-
-    setInputValue(newValue);
-    searchSuggestions(newValue);
-  };
-
-  // Handle key down events
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // First, let suggestions handle the key
-    if (handleSuggestionsKeyDown(e)) {
-      return;
-    }
-
-    // Then, let navigation handle the key
-    handleNavigationKeyDown(e);
-
-    // Handle chip creation keys
-    switch (e.key) {
-      case 'Enter':
-      case 'Tab':
-        if (inputValue.trim()) {
-          e.preventDefault();
-          addChipsFromInput(inputValue);
-          closeSuggestions();
-        }
-        break;
-
-      case ',':
-      case ';':
-        if (inputValue.trim()) {
-          e.preventDefault();
-          addChipsFromInput(inputValue);
-          closeSuggestions();
-        }
-        break;
-
-      case 'Escape':
-        if (suggestionsVisible) {
-          e.preventDefault();
-          closeSuggestions();
-        }
-        break;
-    }
-  };
-
-  // Handle paste event
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pastedText = e.clipboardData.getData('text');
-    
-    if (containsDelimiter(pastedText) || pastedText.includes('\n')) {
-      e.preventDefault();
-      const emails = pastedText
-        .split(/[,;\n]/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-      
-      if (emails.length > 0) {
-        addChipsFromInput(emails.join(','));
-      }
-    }
-  };
-
-  // Handle container click - focus input
-  const handleContainerClick = (e: React.MouseEvent) => {
-    if (e.target === containerRef.current) {
-      inputRef.current?.focus();
-      clearSelection();
-    }
-  };
-
-  // Handle blur - create chip from remaining input
-  const handleBlur = (e: React.FocusEvent) => {
-    // Don't process blur if we're in the middle of selecting a suggestion
-    if (isSelectingRef.current) {
-      return;
-    }
-    // Don't create chip if clicking within the container (e.g., suggestions)
-    if (containerRef.current?.contains(e.relatedTarget)) {
-      return;
-    }
-
-    if (inputValue.trim()) {
-      addChipsFromInput(inputValue);
-    }
-    closeSuggestions();
-  };
-
-  // Clear suggestions when value changes externally
-  useEffect(() => {
-    if (value.length === 0) {
-      clearSuggestions();
-    }
-  }, [value.length, clearSuggestions]);
 
   return (
-    <div
-      ref={containerRef}
-      className={classNames?.container || undefined}
-      onClick={handleContainerClick}
-      role="group"
-      aria-label={ariaLabel}
-    >
-      {value.map((chip, index) => (
-        <EmailChip
-          key={chip.id}
-          chip={chip}
-          isSelected={selectedChipIndex === index}
-          onDelete={deleteChip}
-          onClick={handleChipClick}
-          classNames={classNames}
-          disabled={disabled}
-        />
-      ))}
-      <input
-        ref={inputRef}
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
-        onBlur={handleBlur}
-        onFocus={clearSelection}
-        placeholder={value.length === 0 ? placeholder : undefined}
-        disabled={disabled}
-        className={classNames?.input || undefined}
-        aria-label={ariaLabel}
-        aria-autocomplete={onSearch ? 'list' : undefined}
-        aria-controls={suggestionsVisible ? 'email-suggestions' : undefined}
-        aria-expanded={suggestionsVisible}
-        role="combobox"
-      />
-      <SuggestionsList
-        suggestions={suggestions}
-        highlightedIndex={highlightedIndex}
-        onSelect={handleSuggestionsSelect}
-        onHighlight={handleHighlight}
-        classNames={classNames}
-        isVisible={suggestionsVisible}
-      />
-    </div>
+    <ChipInput<string>
+      value={chips}
+      onChange={handleChange}
+      parseInput={parseInput}
+      validate={validate}
+      isEqual={isEqual}
+      normalize={normalize}
+      formatValue={(email) => email}
+      onSearch={handleSearch}
+      searchDebounceMs={searchDebounceMs}
+      classNames={classNames}
+      placeholder={placeholder}
+      ariaLabel={ariaLabel}
+      disabled={disabled}
+    />
   );
 };
-
