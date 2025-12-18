@@ -1,12 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SuggestionsList } from './suggestions-list';
-import type { Suggestion } from '../types';
+import type { Suggestion } from '../chip-input/types';
 
-const mockSuggestions: Suggestion[] = [
-  { id: '1', email: 'alice@example.com', label: 'Alice' },
-  { id: '2', email: 'bob@example.com', label: 'Bob' },
-  { id: '3', email: 'charlie@example.com' }, // No label
+const mockSuggestions: Suggestion<string>[] = [
+  { id: '1', value: 'alice@example.com', label: 'Alice' },
+  { id: '2', value: 'bob@example.com', label: 'Bob' },
+  { id: '3', value: 'charlie@example.com' }, // No label
 ];
 
 describe('SuggestionsList', () => {
@@ -69,7 +69,7 @@ describe('SuggestionsList', () => {
       expect(screen.getAllByRole('option')).toHaveLength(3);
     });
 
-    it('should render label and email for suggestions with labels', () => {
+    it('should render label for suggestions with labels', () => {
       render(
         <SuggestionsList
           suggestions={mockSuggestions}
@@ -81,10 +81,10 @@ describe('SuggestionsList', () => {
       );
 
       expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.getByText(/alice@example\.com/)).toBeInTheDocument();
+      expect(screen.getByText('Bob')).toBeInTheDocument();
     });
 
-    it('should render only email for suggestions without labels', () => {
+    it('should render value for suggestions without labels', () => {
       render(
         <SuggestionsList
           suggestions={mockSuggestions}
@@ -96,6 +96,21 @@ describe('SuggestionsList', () => {
       );
 
       expect(screen.getByText('charlie@example.com')).toBeInTheDocument();
+    });
+
+    it('should use custom formatSuggestion function', () => {
+      render(
+        <SuggestionsList
+          suggestions={mockSuggestions}
+          highlightedIndex={0}
+          onSelect={vi.fn()}
+          onHighlight={vi.fn()}
+          isVisible={true}
+          formatSuggestion={(s) => `Custom: ${s.value}`}
+        />
+      );
+
+      expect(screen.getByText('Custom: alice@example.com')).toBeInTheDocument();
     });
   });
 
@@ -169,7 +184,7 @@ describe('SuggestionsList', () => {
       expect(screen.getByRole('listbox')).toBeInTheDocument();
     });
 
-    it('should have aria-label', () => {
+    it('should have default aria-label', () => {
       render(
         <SuggestionsList
           suggestions={mockSuggestions}
@@ -177,6 +192,24 @@ describe('SuggestionsList', () => {
           onSelect={vi.fn()}
           onHighlight={vi.fn()}
           isVisible={true}
+        />
+      );
+
+      expect(screen.getByRole('listbox')).toHaveAttribute(
+        'aria-label',
+        'Suggestions'
+      );
+    });
+
+    it('should accept custom aria-label', () => {
+      render(
+        <SuggestionsList
+          suggestions={mockSuggestions}
+          highlightedIndex={0}
+          onSelect={vi.fn()}
+          onHighlight={vi.fn()}
+          isVisible={true}
+          ariaLabel="Email suggestions"
         />
       );
 

@@ -1,9 +1,18 @@
-import type { SuggestionsListProps } from '../types';
+import type { SuggestionsListProps, Suggestion } from '../chip-input/types';
+import { defaultFormatValue } from '../../utils/chip-utils';
 
 /**
- * Suggestions dropdown component for email autocomplete.
+ * Default suggestion formatter.
+ * Uses label if available, otherwise formats the value.
+ */
+const defaultFormatSuggestion = <TValue,>(suggestion: Suggestion<TValue>): string => {
+  return suggestion.label ?? defaultFormatValue(suggestion.value);
+};
+
+/**
+ * Suggestions dropdown component for autocomplete.
  *
- * Displays a list of email suggestions with:
+ * Displays a list of suggestions with:
  * - Keyboard navigation highlighting
  * - Mouse hover highlighting
  * - Click to select
@@ -11,26 +20,29 @@ import type { SuggestionsListProps } from '../types';
  *
  * Returns null when not visible or when there are no suggestions.
  *
+ * @typeParam TValue - The type of the suggestion's value
  * @param props - Component props
  * @returns The rendered suggestions list or null
  */
-export const SuggestionsList = ({
+export const SuggestionsList = <TValue = string,>({
   suggestions,
   highlightedIndex,
   onSelect,
   onHighlight,
+  formatSuggestion = defaultFormatSuggestion,
   classNames,
   isVisible,
-}: SuggestionsListProps) => {
+  ariaLabel = 'Suggestions',
+}: SuggestionsListProps<TValue>) => {
   if (!isVisible || suggestions.length === 0) {
     return null;
   }
 
   return (
     <ul
-      id="email-suggestions"
+      id="chip-suggestions"
       role="listbox"
-      aria-label="Email suggestions"
+      aria-label={ariaLabel}
       className={classNames?.suggestionsList || undefined}
     >
       {suggestions.map((suggestion, index) => {
@@ -41,6 +53,8 @@ export const SuggestionsList = ({
         ]
           .filter(Boolean)
           .join(' ');
+
+        const displayText = formatSuggestion(suggestion);
 
         return (
           <li
@@ -61,14 +75,7 @@ export const SuggestionsList = ({
             }}
             onMouseEnter={() => onHighlight(index)}
           >
-            {suggestion.label ? (
-              <>
-                <span>{suggestion.label}</span>
-                <span> &lt;{suggestion.email}&gt;</span>
-              </>
-            ) : (
-              <span>{suggestion.email}</span>
-            )}
+            <span>{displayText}</span>
           </li>
         );
       })}
