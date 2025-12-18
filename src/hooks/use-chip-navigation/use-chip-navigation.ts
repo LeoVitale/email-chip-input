@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
 import type { RefObject, KeyboardEvent } from 'react';
-import type { EmailChip } from '../../components/types';
+import type { Chip } from '../../components/chip-input/types';
 
 /**
  * Configuration options for the useChipNavigation hook.
+ *
+ * @typeParam TValue - The type of the chip's value
  */
-interface UseChipNavigationOptions {
-  /** Array of email chips to navigate through */
-  chips: EmailChip[];
+interface UseChipNavigationOptions<TValue = string> {
+  /** Array of chips to navigate through */
+  chips: Chip<TValue>[];
   /** Reference to the input element for focus management */
   inputRef: RefObject<HTMLInputElement | null>;
   /** Callback invoked when a chip should be deleted */
@@ -33,7 +35,7 @@ interface UseChipNavigationReturn {
 }
 
 /**
- * Custom hook for managing keyboard navigation between email chips.
+ * Custom hook for managing keyboard navigation between chips.
  *
  * Handles the following keyboard interactions:
  * - **ArrowLeft/ArrowRight**: Navigate between chips
@@ -41,6 +43,7 @@ interface UseChipNavigationReturn {
  * - **Escape**: Clear selection and focus the input
  * - **Character keys**: Clear selection and allow typing
  *
+ * @typeParam TValue - The type of the chip's value
  * @param options - Configuration options
  * @returns Navigation state and event handlers
  *
@@ -67,12 +70,12 @@ interface UseChipNavigationReturn {
  * );
  * ```
  */
-export const useChipNavigation = ({
+export const useChipNavigation = <TValue = string>({
   chips,
   inputRef,
   onDeleteChip,
   onInputChange,
-}: UseChipNavigationOptions): UseChipNavigationReturn => {
+}: UseChipNavigationOptions<TValue>): UseChipNavigationReturn => {
   const [selectedChipIndex, setSelectedChipIndex] = useState<number | null>(null);
 
   const clearSelection = useCallback(() => {

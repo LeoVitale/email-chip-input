@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useChipNavigation } from './use-chip-navigation';
-import type { EmailChip } from '../../components/types';
+import type { Chip } from '../../components/chip-input/types';
 import type { KeyboardEvent, RefObject } from 'react';
 
-const createMockChips = (count: number): EmailChip[] =>
+const createMockChips = (count: number): Chip<string>[] =>
   Array.from({ length: count }, (_, i) => ({
     id: `chip-${i}`,
-    email: `user${i}@example.com`,
+    value: `value-${i}`,
     isValid: true,
   }));
 
