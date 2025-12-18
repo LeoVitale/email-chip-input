@@ -147,3 +147,13 @@ export interface SuggestionsListProps {
   isVisible: boolean;
 }
 
+// Re-export generic types from chip-input for convenience
+export type {
+  Chip,
+  Suggestion as ChipSuggestion,
+  ChipInputClassNames,
+  ChipInputProps,
+  ChipProps,
+  SuggestionsListProps as ChipSuggestionsListProps,
+} from './chip-input/types';
+
