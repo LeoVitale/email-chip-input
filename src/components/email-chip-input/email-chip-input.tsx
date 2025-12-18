@@ -134,16 +134,6 @@ export const EmailChipInput = ({
     };
   }, [onSearch]);
 
-  // Format suggestion for display (email with optional label)
-  const formatSuggestion = useCallback(
-    (suggestion: Suggestion<string>): string => {
-      if (suggestion.label) {
-        return `${suggestion.label} <${suggestion.value}>`;
-      }
-      return suggestion.value;
-    },
-    []
-  );
 
   return (
     <ChipInput<string>
