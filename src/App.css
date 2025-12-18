@@ -7,163 +7,114 @@
 
 body {
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  background-color: #1a1a1a;
+  background-color: #0f0f0f;
   color: #e8eaed;
   font-size: 14px;
   line-height: 1.5;
 }
 
 .app {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
-/* Email compose container */
-.email-compose {
-  background-color: #202124;
-  border-radius: 8px;
-  border: 1px solid #3c4043;
-  overflow: visible;
+.app h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 40px;
+  text-align: center;
 }
 
-/* Email field row */
-.email-field {
-  display: flex;
-  align-items: flex-start;
-  padding: 8px 16px;
-  border-bottom: 1px solid #3c4043;
-  min-height: 44px;
-  overflow: visible;
+/* =============================================================================
+   Example Sections
+   ============================================================================= */
+
+.example-section {
+  background-color: #1a1a1a;
+  border-radius: 16px;
+  border: 1px solid #2a2a2a;
+  padding: 24px;
+  margin-bottom: 24px;
+  transition: border-color 0.3s ease;
 }
 
-.field-label {
-  color: #9aa0a6;
-  font-size: 14px;
-  padding: 8px 12px 8px 0;
-  min-width: 32px;
-  flex-shrink: 0;
+.example-section:hover {
+  border-color: #3a3a3a;
 }
 
-.field-content {
-  flex: 1;
-  position: relative;
-  overflow: visible;
+.example-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 8px;
 }
 
-.field-actions {
-  display: flex;
-  gap: 8px;
-  padding: 8px 0;
-  margin-left: 8px;
+.example-section .description {
+  color: #888;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
 }
 
-.cc-btn,
-.bcc-btn {
-  background: transparent;
-  border: none;
-  color: #9aa0a6;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 4px 8px;
+.example-section .description code {
+  background-color: #2d2d2d;
+  padding: 2px 6px;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  color: #a78bfa;
+  font-size: 0.8rem;
 }
 
-.cc-btn:hover,
-.bcc-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.input-wrapper {
+  background-color: #202020;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #333;
 }
 
-/* Chip input container */
+.debug-box {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #151515;
+  border-radius: 8px;
+  border: 1px solid #252525;
+}
+
+.debug-box strong {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.debug-box pre {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.75rem;
+  color: #4ade80;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+/* =============================================================================
+   Chip Input Container (Base)
+   ============================================================================= */
+
 .chip-input-container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 4px 0;
+  gap: 8px;
+  min-height: 40px;
   position: relative;
   width: 100%;
-}
-
-/* Email chip */
-.email-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background-color: #3c4043;
-  border-radius: 16px;
-  padding: 4px 8px 4px 12px;
-  font-size: 14px;
-  color: #e8eaed;
-  cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s;
-  user-select: none;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.email-chip:hover {
-  background-color: #4a4d51;
-}
-
-.email-chip:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #8ab4f8;
-}
-
-.email-chip span:first-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Invalid chip */
-.email-chip--invalid {
-  background-color: #5c2b2b;
-  border: 1px solid #f28b82;
-}
-
-.email-chip--invalid:hover {
-  background-color: #6d3535;
-}
-
-/* Selected chip */
-.email-chip--selected {
-  background-color: #8ab4f8;
-  color: #202124;
-}
-
-.email-chip--selected:hover {
-  background-color: #aecbfa;
-}
-
-/* Chip delete button */
-.chip-delete-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  border-radius: 50%;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0;
-  transition: background-color 0.2s;
-  flex-shrink: 0;
-}
-
-.chip-delete-btn:hover {
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-.email-chip--selected .chip-delete-btn:hover {
-  background-color: rgba(0, 0, 0, 0.15);
 }
 
 /* Text input */
@@ -180,22 +131,263 @@ body {
 }
 
 .chip-input::placeholder {
-  color: #9aa0a6;
+  color: #666;
 }
 
-/* Suggestions dropdown */
+/* Base chip delete button */
+.chip-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.chip-delete-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* =============================================================================
+   Email Chips
+   ============================================================================= */
+
+.email-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 20px;
+  padding: 6px 10px 6px 14px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.email-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.email-chip:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.email-chip span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-chip--invalid {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+.email-chip--invalid:hover {
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+}
+
+.email-chip--selected {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.5);
+}
+
+/* =============================================================================
+   Tag Chips
+   ============================================================================= */
+
+.chip-input-container--tags {
+  background-color: transparent;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  padding: 4px 8px 4px 10px;
+  font-size: 13px;
+  color: #e8eaed;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.tag-chip:hover {
+  background-color: #333;
+  border-color: #505050;
+}
+
+.tag-chip:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+.tag-chip--selected {
+  background-color: #8b5cf6;
+  border-color: #8b5cf6;
+  color: #fff;
+}
+
+/* =============================================================================
+   Phone Chips
+   ============================================================================= */
+
+.chip-input-container--phone {
+  background-color: transparent;
+}
+
+.phone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 20px;
+  padding: 6px 10px 6px 14px;
+  font-size: 13px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.phone-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
+.phone-chip:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5);
+}
+
+.phone-chip--invalid {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+}
+
+.phone-chip--selected {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5);
+}
+
+/* =============================================================================
+   Fruit Chips
+   ============================================================================= */
+
+.chip-input-container--fruits {
+  background-color: transparent;
+}
+
+.fruit-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border-radius: 20px;
+  padding: 6px 10px 6px 14px;
+  font-size: 13px;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+  font-weight: 500;
+}
+
+.fruit-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(251, 191, 36, 0.4);
+}
+
+.fruit-chip:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.5);
+}
+
+.fruit-chip--selected {
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+  box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.5);
+}
+
+.fruit-chip .chip-delete-btn {
+  color: #1f2937;
+}
+
+/* =============================================================================
+   Team Chips
+   ============================================================================= */
+
+.chip-input-container--team {
+  background-color: transparent;
+}
+
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  border-radius: 20px;
+  padding: 6px 10px 6px 14px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(236, 72, 153, 0.3);
+}
+
+.team-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(236, 72, 153, 0.4);
+}
+
+.team-chip:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.5);
+}
+
+.team-chip--selected {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+  box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.5);
+}
+
+/* =============================================================================
+   Suggestions Dropdown
+   ============================================================================= */
+
 .suggestions-list {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background-color: #2d2e30;
-  border: 1px solid #3c4043;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 8px 0;
   max-height: 240px;
   overflow-y: auto;
   z-index: 1000;
@@ -205,68 +397,45 @@ body {
 .suggestion-item {
   display: flex;
   align-items: center;
-  padding: 10px 16px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: background-color 0.15s;
+  color: #e8eaed;
 }
 
 .suggestion-item:hover {
-  background-color: #3c4043;
+  background-color: #252525;
 }
 
 .suggestion-item--highlighted {
-  background-color: #3c4043;
+  background-color: #2a2a2a;
 }
 
-.suggestion-item span:first-child {
-  color: #e8eaed;
-  font-weight: 500;
+.suggestion-item span {
+  font-size: 14px;
 }
 
-.suggestion-item span:last-child {
-  color: #9aa0a6;
-  margin-left: 4px;
+/* =============================================================================
+   Scrollbar Styles
+   ============================================================================= */
+
+.suggestions-list::-webkit-scrollbar,
+.debug-box pre::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Debug info */
-.debug-info {
-  margin-top: 40px;
-  padding: 20px;
-  background-color: #2d2e30;
-  border-radius: 8px;
-  border: 1px solid #3c4043;
-}
-
-.debug-info h3 {
-  color: #9aa0a6;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-}
-
-.debug-info pre {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 12px;
-  color: #81c995;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-/* Scrollbar styles */
-.suggestions-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.suggestions-list::-webkit-scrollbar-track {
+.suggestions-list::-webkit-scrollbar-track,
+.debug-box pre::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.suggestions-list::-webkit-scrollbar-thumb {
-  background-color: #5f6368;
-  border-radius: 4px;
+.suggestions-list::-webkit-scrollbar-thumb,
+.debug-box pre::-webkit-scrollbar-thumb {
+  background-color: #404040;
+  border-radius: 3px;
 }
 
-.suggestions-list::-webkit-scrollbar-thumb:hover {
-  background-color: #80868b;
+.suggestions-list::-webkit-scrollbar-thumb:hover,
+.debug-box pre::-webkit-scrollbar-thumb:hover {
+  background-color: #505050;
 }
