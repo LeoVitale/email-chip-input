@@ -141,10 +141,11 @@ export const useChipNavigation = <TValue = string>({
             break;
 
           default:
-            // If typing a character, clear selection and let input handle it
+            // If typing a character, keep selection (will be used for insert position)
+            // and let input handle it - selection is cleared after chip is created
             if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-              clearSelection();
               input?.focus();
+              // Don't clear selection here - it's needed for insert position
             }
             break;
         }

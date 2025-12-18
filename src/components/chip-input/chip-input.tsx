@@ -1,20 +1,26 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import type { KeyboardEvent } from 'react';
-import type { ChipInputProps, Chip, Suggestion } from './types';
+import React from 'react';
+import type { ChipInputProps, Chip } from './types';
 import { Chip as ChipComponent } from '../chip';
 import { SuggestionsList } from '../suggestions-list';
-import { useChipNavigation } from '../../hooks/use-chip-navigation';
-import { useChipValidation } from '../../hooks/use-chip-validation';
-import { useSuggestions } from '../../hooks/use-suggestions';
-import {
-  generateId,
-  containsDelimiter,
-  splitByDelimiters,
-  defaultFormatValue,
-  defaultIsEqual,
-  defaultNormalize,
-  DEFAULT_DELIMITERS,
-} from '../../utils/chip-utils';
+import { useChipInputState } from './use-chip-input-state';
+import { defaultFormatValue, DEFAULT_DELIMITERS } from '../../utils/chip-utils';
+
+// ============================================================================
+// Styles
+// ============================================================================
+
+const MEASURE_SPAN_STYLE: React.CSSProperties = {
+  position: 'absolute',
+  visibility: 'hidden',
+  whiteSpace: 'pre',
+  fontSize: '14px',
+  fontFamily: 'inherit',
+  padding: '0 4px',
+};
+
+// ============================================================================
+// Component
+// ============================================================================
 
 /**
  * A controlled chip input component that displays values as chips.
@@ -29,8 +35,6 @@ import {
  * - **Accessibility**: Full ARIA support and keyboard navigation
  *
  * @typeParam TValue - The type of the chip's value (default: string)
- * @param props - Component props
- * @returns The rendered chip input
  *
  * @example
  * ```tsx
@@ -51,13 +55,13 @@ import {
  * />
  * ```
  */
-export const ChipInput = <TValue = string,>({
+export const ChipInput = <TValue extends string>({
   value,
   onChange,
   parseInput,
   validate,
-  isEqual = defaultIsEqual,
-  normalize = defaultNormalize,
+  isEqual,
+  normalize,
   formatValue = defaultFormatValue,
   delimiters = DEFAULT_DELIMITERS,
   onSearch,
@@ -67,312 +71,83 @@ export const ChipInput = <TValue = string,>({
   ariaLabel = 'Chip input',
   disabled = false,
 }: ChipInputProps<TValue>) => {
-  const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isSelectingRef = useRef(false);
-
-  const { validate: validateValue, hasValidator } = useChipValidation<TValue>({
-    validate,
-  });
-
-  // Default parse function for string types
-  const defaultParseInput = useCallback(
-    (input: string): Pick<Chip<TValue>, 'value' | 'label'> | null => {
-      const trimmed = input.trim();
-      if (!trimmed) return null;
-      // Cast to TValue - this works for string types
-      return { value: trimmed as unknown as TValue };
-    },
-    []
-  );
-
-  const parseInputFn = parseInput ?? defaultParseInput;
-
-  // Create chip from input string
-  const createChip = useCallback(
-    async (input: string): Promise<Chip<TValue> | null> => {
-      const parsed = parseInputFn(input);
-      if (!parsed || parsed.value === undefined || parsed.value === null) return null;
-
-      // Check for duplicates using normalize and isEqual
-      const normalizedValue = normalize(parsed.value);
-      const isDuplicate = value.some((chip) =>
-        isEqual(normalize(chip.value), normalizedValue)
-      );
-      if (isDuplicate) return null;
-
-      // Validate if validator is provided
-      const isValid = hasValidator ? await validateValue(parsed.value) : undefined;
-
-      return {
-        id: generateId(),
-        value: parsed.value,
-        label: parsed.label,
-        isValid,
-      };
-    },
-    [value, validateValue, hasValidator, parseInputFn, normalize, isEqual]
-  );
-
-  // Add chip(s) from input value
-  const addChipsFromInput = useCallback(
-    async (input: string) => {
-      const values = containsDelimiter(input, delimiters)
-        ? splitByDelimiters(input, delimiters)
-        : [input];
-      const newChips: Chip<TValue>[] = [];
-
-      for (const val of values) {
-        const chip = await createChip(val);
-        if (chip) {
-          newChips.push(chip);
-        }
-      }
-
-      if (newChips.length > 0) {
-        onChange([...value, ...newChips]);
-      }
-
-      setInputValue('');
-    },
-    [createChip, onChange, value, delimiters]
-  );
-
-  // Delete chip by id
-  const deleteChip = useCallback(
-    (id: string) => {
-      onChange(value.filter((chip) => chip.id !== id));
-    },
-    [onChange, value]
-  );
-
-  // Handle suggestion selection
-  const handleSuggestionSelect = useCallback(
-    async (suggestion: Suggestion<TValue>) => {
-      // Set flag to prevent blur interference
-      isSelectingRef.current = true;
-
-      // Check for duplicates
-      const normalizedValue = normalize(suggestion.value);
-      const isDuplicate = value.some((chip) =>
-        isEqual(normalize(chip.value), normalizedValue)
-      );
-
-      if (!isDuplicate) {
-        // Validate if validator is provided
-        const isValid = hasValidator
-          ? await validateValue(suggestion.value)
-          : undefined;
-
-        const chip: Chip<TValue> = {
-          id: generateId(),
-          value: suggestion.value,
-          label: suggestion.label,
-          isValid,
-        };
-
-        onChange([...value, chip]);
-      }
-
-      setInputValue('');
-      // Reset flag after a short delay to allow onChange to process
-      setTimeout(() => {
-        isSelectingRef.current = false;
-        inputRef.current?.focus();
-      }, 0);
-    },
-    [value, onChange, normalize, isEqual, hasValidator, validateValue]
-  );
-
-  // Suggestions hook
+  // Destructure all values from the hook to avoid linter confusion
   const {
+    inputRef,
+    containerRef,
+    measureRef,
+    inputValue,
+    inputWidth,
+    insertPosition,
     suggestions,
     highlightedIndex,
-    isVisible: suggestionsVisible,
-    search: searchSuggestions,
-    handleKeyDown: handleSuggestionsKeyDown,
-    handleSelect: handleSuggestionsSelect,
-    handleHighlight,
-    close: closeSuggestions,
-    clear: clearSuggestions,
-  } = useSuggestions<TValue>({
-    onSearch,
-    debounceMs: searchDebounceMs,
-    onSelect: handleSuggestionSelect,
-  });
-
-  // Navigation hook
-  const {
-    selectedChipIndex,
-    handleKeyDown: handleNavigationKeyDown,
+    suggestionsVisible,
+    handleInputChange,
+    handleKeyDown,
+    handlePaste,
+    handleBlur,
+    handleContainerClick,
+    handleContainerKeyDown,
     handleChipClick,
-    clearSelection,
-  } = useChipNavigation<TValue>({
-    chips: value,
-    inputRef,
-    onDeleteChip: deleteChip,
-    onInputChange: () => {
-      // Search for suggestions when input changes
-      searchSuggestions(inputValue);
-    },
+    handleChipDelete,
+    handleSuggestionSelect,
+    handleSuggestionHighlight,
+  } = useChipInputState({
+    value,
+    onChange,
+    parseInput,
+    validate,
+    isEqual,
+    normalize,
+    delimiters,
+    onSearch,
+    searchDebounceMs,
+    placeholder,
   });
 
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-
-    // Check if the input contains a delimiter - if so, create chips immediately
-    if (containsDelimiter(newValue, delimiters)) {
-      addChipsFromInput(newValue);
-      return;
-    }
-
-    setInputValue(newValue);
-    searchSuggestions(newValue);
-  };
-
-  // Handle key down events
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // First, let suggestions handle the key
-    if (handleSuggestionsKeyDown(e)) {
-      return;
-    }
-
-    // Then, let navigation handle the key
-    handleNavigationKeyDown(e);
-
-    // Handle chip creation keys
-    switch (e.key) {
-      case 'Enter':
-      case 'Tab':
-        if (inputValue.trim()) {
-          e.preventDefault();
-          addChipsFromInput(inputValue);
-          closeSuggestions();
-        }
-        break;
-
-      case 'Escape':
-        if (suggestionsVisible) {
-          e.preventDefault();
-          closeSuggestions();
-        }
-        break;
-
-      default:
-        // Check if the key is a delimiter
-        if (delimiters.includes(e.key) && inputValue.trim()) {
-          e.preventDefault();
-          addChipsFromInput(inputValue);
-          closeSuggestions();
-        }
-        break;
-    }
-  };
-
-  // Handle paste event
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pastedText = e.clipboardData.getData('text');
-
-    if (containsDelimiter(pastedText, delimiters) || pastedText.includes('\n')) {
-      e.preventDefault();
-      // Split by delimiters and newlines - use splitByDelimiters which handles escaping
-      const allDelimiters = [...delimiters, '\n'];
-      const values = splitByDelimiters(pastedText, allDelimiters);
-
-      if (values.length > 0) {
-        addChipsFromInput(values.join(delimiters[0]));
-      }
-    }
-  };
-
-  // Handle container click - focus input
-  const handleContainerClick = (e: React.MouseEvent) => {
-    // Only focus if clicking directly on the container, not on chips or input
-    if (e.target === containerRef.current) {
-      inputRef.current?.focus();
-      clearSelection();
-    }
-  };
-
-  // Handle container keyboard events for accessibility
-  const handleContainerKeyDown = (e: React.KeyboardEvent) => {
-    // Focus input on Enter or Space when container is focused
-    if ((e.key === 'Enter' || e.key === ' ') && e.target === containerRef.current) {
-      e.preventDefault();
-      inputRef.current?.focus();
-      clearSelection();
-    }
-  };
-
-  // Handle blur - create chip from remaining input
-  const handleBlur = (e: React.FocusEvent) => {
-    // Don't process blur if we're in the middle of selecting a suggestion
-    if (isSelectingRef.current) {
-      return;
-    }
-    // Don't create chip if clicking within the container (e.g., suggestions)
-    if (containerRef.current?.contains(e.relatedTarget)) {
-      return;
-    }
-
-    if (inputValue.trim()) {
-      addChipsFromInput(inputValue);
-    }
-    closeSuggestions();
-  };
-
-  // Clear suggestions when value changes externally
-  useEffect(() => {
-    if (value.length === 0) {
-      clearSuggestions();
-    }
-  }, [value.length, clearSuggestions]);
+  // Build elements array
+  const elements = buildChipElements({
+    chips: value,
+    insertPosition,
+    inputElement: renderInput({
+      inputRef,
+      inputValue,
+      inputWidth,
+      placeholder,
+      hasChips: value.length > 0,
+      disabled,
+      ariaLabel,
+      hasSearch: !!onSearch,
+      suggestionsVisible,
+      className: classNames?.input,
+      onChange: handleInputChange,
+      onKeyDown: handleKeyDown,
+      onPaste: handlePaste,
+      onBlur: handleBlur,
+    }),
+    onDelete: handleChipDelete,
+    onClick: handleChipClick,
+    formatValue,
+    classNames,
+    disabled,
+  });
 
   return (
     <div
       ref={containerRef}
-      className={classNames?.container || undefined}
+      className={classNames?.container}
       onClick={handleContainerClick}
       onKeyDown={handleContainerKeyDown}
-      aria-label={ariaLabel}
     >
-      {value.map((chip, index) => (
-        <ChipComponent<TValue>
-          key={chip.id}
-          chip={chip}
-          isSelected={selectedChipIndex === index}
-          onDelete={deleteChip}
-          onClick={handleChipClick}
-          formatValue={formatValue}
-          classNames={classNames}
-          disabled={disabled}
-        />
-      ))}
-      <input
-        ref={inputRef}
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
-        onBlur={handleBlur}
-        onFocus={clearSelection}
-        placeholder={value.length === 0 ? placeholder : undefined}
-        disabled={disabled}
-        className={classNames?.input || undefined}
-        aria-label={ariaLabel}
-        aria-autocomplete={onSearch ? 'list' : undefined}
-        aria-controls={suggestionsVisible ? 'chip-suggestions' : undefined}
-        aria-expanded={suggestionsVisible}
-        role="combobox"
-      />
+      {elements}
+
+      <span ref={measureRef} aria-hidden="true" style={MEASURE_SPAN_STYLE} />
+
       <SuggestionsList<TValue>
         suggestions={suggestions}
         highlightedIndex={highlightedIndex}
-        onSelect={handleSuggestionsSelect}
-        onHighlight={handleHighlight}
+        onSelect={handleSuggestionSelect}
+        onHighlight={handleSuggestionHighlight}
         formatSuggestion={(s) => s.label ?? formatValue(s.value)}
         classNames={classNames}
         isVisible={suggestionsVisible}
@@ -382,3 +157,120 @@ export const ChipInput = <TValue = string,>({
   );
 };
 
+// ============================================================================
+// Render Helpers
+// ============================================================================
+
+interface RenderInputParams {
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  inputValue: string;
+  inputWidth: number;
+  placeholder: string;
+  hasChips: boolean;
+  disabled: boolean;
+  ariaLabel: string;
+  hasSearch: boolean;
+  suggestionsVisible: boolean;
+  className?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
+  onBlur: (e: React.FocusEvent) => void;
+}
+
+function renderInput({
+  inputRef,
+  inputValue,
+  inputWidth,
+  placeholder,
+  hasChips,
+  disabled,
+  ariaLabel,
+  hasSearch,
+  suggestionsVisible,
+  className,
+  onChange,
+  onKeyDown,
+  onPaste,
+  onBlur,
+}: RenderInputParams): React.ReactElement {
+  // Only show placeholder when there are no chips and no input value
+  const showPlaceholder = !hasChips && !inputValue;
+
+  return (
+    <input
+      key="chip-input"
+      ref={inputRef}
+      type="text"
+      value={inputValue}
+      onChange={onChange}
+      onKeyDown={onKeyDown}
+      onPaste={onPaste}
+      onBlur={onBlur}
+      placeholder={showPlaceholder ? placeholder : undefined}
+      disabled={disabled}
+      className={className}
+      style={{ width: `${inputWidth}px` }}
+      aria-label={ariaLabel}
+      aria-autocomplete={hasSearch ? 'list' : undefined}
+      aria-controls={suggestionsVisible ? 'chip-suggestions' : undefined}
+      aria-expanded={suggestionsVisible}
+      role="combobox"
+    />
+  );
+}
+
+interface BuildChipElementsParams<TValue> {
+  chips: Chip<TValue>[];
+  insertPosition: number | null;
+  inputElement: React.ReactElement;
+  onDelete: (id: string) => void;
+  onClick: (id: string) => void;
+  formatValue: (value: TValue) => string;
+  classNames?: ChipInputProps<TValue>['classNames'];
+  disabled: boolean;
+}
+
+/**
+ * Builds the array of elements (chips + input) with the input
+ * positioned at the correct insertion point.
+ */
+function buildChipElements<TValue extends string>({
+  chips,
+  insertPosition,
+  inputElement,
+  onDelete,
+  onClick,
+  formatValue,
+  classNames,
+  disabled,
+}: BuildChipElementsParams<TValue>): React.ReactNode[] {
+  const elements: React.ReactNode[] = [];
+
+  chips.forEach((chip, index) => {
+    // Insert input before this chip if insertPosition matches
+    if (insertPosition === index) {
+      elements.push(inputElement);
+    }
+
+    elements.push(
+      <ChipComponent<TValue>
+        key={chip.id}
+        chip={chip}
+        isSelected={false}
+        onDelete={onDelete}
+        onClick={onClick}
+        formatValue={formatValue}
+        classNames={classNames}
+        disabled={disabled}
+      />
+    );
+  });
+
+  // Input at the end if insertPosition is null or >= chips.length
+  if (insertPosition === null || insertPosition >= chips.length) {
+    elements.push(inputElement);
+  }
+
+  return elements;
+}
