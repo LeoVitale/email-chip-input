@@ -72,8 +72,9 @@ export const splitByDelimiters = (
   delimiters: string[] = DEFAULT_DELIMITERS
 ): string[] => {
   // Escape special regex characters in delimiters
+  // Note: '-' must be escaped when used inside character class []
   const escapedDelimiters = delimiters.map((d) =>
-    d.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    d.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')
   );
   const regex = new RegExp(`[${escapedDelimiters.join('')}]`);
 
