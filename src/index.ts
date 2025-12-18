@@ -46,14 +46,12 @@ export {
 // =============================================================================
 
 export { EmailChipInput } from './components/email-chip-input';
-export { EmailChip } from './components/email-chip';
 export { SuggestionsList } from './components/suggestions-list';
 
 // Email Types
 export type {
   EmailChip as EmailChipType,
   EmailChipInputProps,
-  EmailChipProps,
   EmailChipInputClassNames,
   Suggestion,
   SuggestionsListProps,

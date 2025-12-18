@@ -110,25 +110,6 @@ export interface EmailChipInputProps {
 }
 
 /**
- * Props for the EmailChip component.
- * Internal component used to render individual email chips.
- */
-export interface EmailChipProps {
-  /** The chip data to display */
-  chip: EmailChip;
-  /** Whether this chip is currently selected */
-  isSelected: boolean;
-  /** Callback when delete button is clicked */
-  onDelete: (id: string) => void;
-  /** Callback when the chip is clicked */
-  onClick: (id: string) => void;
-  /** CSS class names for styling */
-  classNames?: Pick<EmailChipInputClassNames, 'chip' | 'chipInvalid' | 'chipSelected' | 'deleteButton'>;
-  /** Whether the chip is disabled */
-  disabled?: boolean;
-}
-
-/**
  * Props for the SuggestionsList component.
  * Internal component used to render the autocomplete dropdown.
  */
