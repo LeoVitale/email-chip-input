@@ -1,29 +1,33 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
-import type { Suggestion } from '../../components/types';
+import type { Suggestion } from '../../components/chip-input/types';
 
 /**
  * Function type for searching suggestions.
  * Should return a Promise that resolves to an array of Suggestion objects.
+ *
+ * @typeParam TValue - The type of the suggestion's value
  */
-type SearchFn = (query: string) => Promise<Suggestion[]>;
+type SearchFn<TValue> = (query: string) => Promise<Suggestion<TValue>[]>;
 
 /**
  * Configuration options for the useSuggestions hook.
+ *
+ * @typeParam TValue - The type of the suggestion's value
  */
-interface UseSuggestionsOptions {
+interface UseSuggestionsOptions<TValue = string> {
   /**
    * Async function to search for suggestions.
    * If not provided, suggestions will never be shown.
    */
-  onSearch?: SearchFn;
+  onSearch?: SearchFn<TValue>;
   /**
    * Debounce delay in milliseconds before triggering search.
    * @default 300
    */
   debounceMs?: number;
   /** Callback invoked when a suggestion is selected */
-  onSelect: (suggestion: Suggestion) => void;
+  onSelect: (suggestion: Suggestion<TValue>) => void;
   /**
    * Optional callback invoked when a search error occurs.
    * AbortError is automatically ignored and will not trigger this callback.
@@ -34,10 +38,12 @@ interface UseSuggestionsOptions {
 
 /**
  * Return value from the useSuggestions hook.
+ *
+ * @typeParam TValue - The type of the suggestion's value
  */
-interface UseSuggestionsReturn {
+interface UseSuggestionsReturn<TValue = string> {
   /** Current list of suggestions */
-  suggestions: Suggestion[];
+  suggestions: Suggestion<TValue>[];
   /** Whether a search is currently in progress */
   isLoading: boolean;
   /** Index of the currently highlighted suggestion (-1 if none) */
@@ -49,7 +55,7 @@ interface UseSuggestionsReturn {
   /** Keyboard event handler for suggestion navigation. Returns true if event was handled. */
   handleKeyDown: (e: KeyboardEvent<HTMLInputElement>) => boolean;
   /** Handle selection of a suggestion */
-  handleSelect: (suggestion: Suggestion) => void;
+  handleSelect: (suggestion: Suggestion<TValue>) => void;
   /** Set the highlighted suggestion index */
   handleHighlight: (index: number) => void;
   /** Close the suggestions dropdown */
@@ -91,13 +97,13 @@ interface UseSuggestionsReturn {
  * });
  * ```
  */
-export const useSuggestions = ({
+export const useSuggestions = <TValue = string>({
   onSearch,
   debounceMs = 300,
   onSelect,
   onError,
-}: UseSuggestionsOptions): UseSuggestionsReturn => {
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+}: UseSuggestionsOptions<TValue>): UseSuggestionsReturn<TValue> => {
+  const [suggestions, setSuggestions] = useState<Suggestion<TValue>[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [isVisible, setIsVisible] = useState(false);
@@ -184,7 +190,7 @@ export const useSuggestions = ({
   );
 
   const handleSelect = useCallback(
-    (suggestion: Suggestion) => {
+    (suggestion: Suggestion<TValue>) => {
       onSelect(suggestion);
       setSuggestions([]);
       setIsVisible(false);
