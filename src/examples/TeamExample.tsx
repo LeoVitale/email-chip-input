@@ -56,6 +56,7 @@ export const TeamExample = () => {
             suggestionsList: 'suggestions-list',
             suggestionItem: 'suggestion-item',
             suggestionItemHighlighted: 'suggestion-item--highlighted',
+            insertCursor: 'insert-cursor',
           }}
         />
       </div>

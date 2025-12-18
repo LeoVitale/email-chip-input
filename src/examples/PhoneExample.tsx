@@ -50,6 +50,7 @@ export const PhoneExample = () => {
             chipInvalid: 'phone-chip--invalid',
             chipSelected: 'phone-chip--selected',
             deleteButton: 'chip-delete-btn',
+            insertCursor: 'insert-cursor',
           }}
         />
       </div>

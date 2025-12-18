@@ -23,6 +23,7 @@ export const DelimitersExample = () => {
             chip: 'tag-chip',
             chipSelected: 'tag-chip--selected',
             deleteButton: 'chip-delete-btn',
+            insertCursor: 'insert-cursor',
           }}
         />
       </div>

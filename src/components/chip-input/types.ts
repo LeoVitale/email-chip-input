@@ -53,6 +53,8 @@ export interface ChipInputClassNames {
   suggestionItem?: string;
   /** Class for the highlighted/focused suggestion */
   suggestionItemHighlighted?: string;
+  /** Class for the insertion cursor indicator */
+  insertCursor?: string;
 }
 
 /**

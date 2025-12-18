@@ -117,17 +117,18 @@ body {
   width: 100%;
 }
 
-/* Text input */
+/* Text input - auto-sizing */
 .chip-input {
-  flex: 1;
-  min-width: 150px;
+  min-width: 1px;
   border: none;
   background: transparent;
   color: #e8eaed;
   font-size: 14px;
   font-family: inherit;
-  padding: 8px 4px;
+  padding: 8px 2px;
   outline: none;
+  margin-left: -6px;
+  margin-right: -14px;
 }
 
 .chip-input::placeholder {
@@ -157,6 +158,34 @@ body {
 .chip-delete-btn:hover {
   opacity: 1;
   background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* =============================================================================
+   Insert Cursor
+   ============================================================================= */
+
+.insert-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 24px;
+  background-color: #667eea;
+  border-radius: 1px;
+  margin: 0 2px;
+  animation: cursor-blink 1s step-end infinite;
+  vertical-align: middle;
+}
+
+@keyframes cursor-blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 /* =============================================================================
