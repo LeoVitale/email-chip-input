@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { SuggestionsListProps, Suggestion } from '../chip-input/types';
 import { defaultFormatValue } from '../../utils/chip-utils';
 
@@ -24,7 +25,7 @@ const defaultFormatSuggestion = <TValue,>(suggestion: Suggestion<TValue>): strin
  * @param props - Component props
  * @returns The rendered suggestions list or null
  */
-export const SuggestionsList = <TValue = string,>({
+function SuggestionsListInner<TValue = string>({
   suggestions,
   highlightedIndex,
   onSelect,
@@ -33,7 +34,7 @@ export const SuggestionsList = <TValue = string,>({
   classNames,
   isVisible,
   ariaLabel = 'Suggestions',
-}: SuggestionsListProps<TValue>) => {
+}: SuggestionsListProps<TValue>) {
   if (!isVisible || suggestions.length === 0) {
     return null;
   }
@@ -81,5 +82,6 @@ export const SuggestionsList = <TValue = string,>({
       })}
     </ul>
   );
-};
+}
 
+export const SuggestionsList = memo(SuggestionsListInner) as typeof SuggestionsListInner;
