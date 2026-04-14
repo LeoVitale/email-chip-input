@@ -1,3 +1,10 @@
+const EMAIL_FORMAT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** "Name <email>" bracket form */
+const NAME_EMAIL_BRACKET_REGEX = /^(.+?)\s*<([^>]+)>$/;
+
+const EMAIL_SPLIT_REGEX = /[,;]/;
+
 /**
  * Default email validation using a simple regex pattern.
  * Validates that the email contains characters before @, after @, and a domain extension.
@@ -13,8 +20,7 @@
  * ```
  */
 export const defaultEmailValidator = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email.trim());
+  return EMAIL_FORMAT_REGEX.test(email.trim());
 };
 
 /**
@@ -60,9 +66,9 @@ export const generateId = (): string => {
  */
 export const parseEmailInput = (input: string): { email: string; label?: string } => {
   const trimmed = input.trim();
-  
+
   // Check for "Name <email>" format
-  const bracketMatch = trimmed.match(/^(.+?)\s*<([^>]+)>$/);
+  const bracketMatch = trimmed.match(NAME_EMAIL_BRACKET_REGEX);
   if (bracketMatch) {
     return {
       label: bracketMatch[1].trim(),
@@ -109,7 +115,7 @@ export const containsDelimiter = (input: string): boolean => {
  */
 export const splitByDelimiters = (input: string): string[] => {
   return input
-    .split(/[,;]/)
+    .split(EMAIL_SPLIT_REGEX)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 };

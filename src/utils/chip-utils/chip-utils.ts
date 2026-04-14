@@ -1,3 +1,5 @@
+const DELIMITER_ESCAPE_REGEX = /[.*+?^${}()|[\]\\-]/g;
+
 /**
  * Generate a unique ID for chips.
  * Uses `crypto.randomUUID()` when available (modern browsers),
@@ -74,7 +76,7 @@ export const splitByDelimiters = (
   // Escape special regex characters in delimiters
   // Note: '-' must be escaped when used inside character class []
   const escapedDelimiters = delimiters.map((d) =>
-    d.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')
+    d.replace(DELIMITER_ESCAPE_REGEX, '\\$&')
   );
   const regex = new RegExp(`[${escapedDelimiters.join('')}]`);
 
