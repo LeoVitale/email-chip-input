@@ -33,6 +33,8 @@ const emailSuggestionToSuggestion = (suggestion: EmailSuggestion): Suggestion<st
   label: suggestion.label,
 });
 
+const formatEmailChipValue = (email: string): string => email;
+
 /**
  * A controlled email input component that displays email addresses as chips.
  *
@@ -143,7 +145,7 @@ export const EmailChipInput = ({
       validate={validate}
       isEqual={isEqual}
       normalize={normalize}
-      formatValue={(email) => email}
+      formatValue={formatEmailChipValue}
       onSearch={handleSearch}
       searchDebounceMs={searchDebounceMs}
       classNames={classNames}
