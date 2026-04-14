@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import type { KeyboardEvent, ChangeEvent, ClipboardEvent, FocusEvent } from 'react';
 import type { ChipInputProps, Chip, Suggestion } from './types';
 import { useChipValidation } from '../../hooks/use-chip-validation';
@@ -231,7 +231,7 @@ export const useChipInputState = <TValue extends string>({
   // -------------------------------------------------------------------------
   // Input Auto-Resize
   // -------------------------------------------------------------------------
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (measureRef.current) {
       const showPlaceholder = value.length === 0 && !inputValue;
       const textToMeasure = inputValue || (showPlaceholder ? placeholder : '') || '';
