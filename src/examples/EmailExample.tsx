@@ -1,6 +1,25 @@
 import { useState } from 'react';
 import { EmailChipInput } from '../components';
-import type { EmailChipType, Suggestion } from '../components';
+import type {
+  EmailChipType,
+  Suggestion,
+  EmailChipInputClassNames,
+} from '../components';
+
+const EMAIL_EXAMPLE_CLASS_NAMES: EmailChipInputClassNames = {
+  container: 'chip-input-container',
+  input: 'chip-input',
+  chip: 'email-chip',
+  chipInvalid: 'email-chip--invalid',
+  chipSelected: 'email-chip--selected',
+  deleteButton: 'chip-delete-btn',
+  suggestionsList: 'suggestions-list',
+  suggestionItem: 'suggestion-item',
+  suggestionItemHighlighted: 'suggestion-item--highlighted',
+};
+
+const DEMO_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const validateDemoEmail = (email: string): boolean => DEMO_EMAIL_REGEX.test(email);
 
 const mockContacts: Suggestion[] = [
   { id: '1', email: 'leonardo.vitale@xelix.com', label: 'Leonardo Tadeu Vitale' },
@@ -35,20 +54,10 @@ export const EmailExample = () => {
         <EmailChipInput
           value={chips}
           onChange={setChips}
-          validateEmail={(email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
+          validateEmail={validateDemoEmail}
           onSearch={handleSearch}
           placeholder="Add email addresses..."
-          classNames={{
-            container: 'chip-input-container',
-            input: 'chip-input',
-            chip: 'email-chip',
-            chipInvalid: 'email-chip--invalid',
-            chipSelected: 'email-chip--selected',
-            deleteButton: 'chip-delete-btn',
-            suggestionsList: 'suggestions-list',
-            suggestionItem: 'suggestion-item',
-            suggestionItemHighlighted: 'suggestion-item--highlighted',
-          }}
+          classNames={EMAIL_EXAMPLE_CLASS_NAMES}
         />
       </div>
       <div className="debug-box">
