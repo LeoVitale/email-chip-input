@@ -256,58 +256,76 @@ export const useChipInputState = <TValue extends string>({
 
   const parseInputFn = parseInput ?? defaultParseInput;
 
-  const createChip = useCallback(
-    async (input: string): Promise<Chip<TValue> | null> => {
-      const parsed = parseInputFn(input);
-      if (parsed?.value == null) return null;
-
-      const normalizedValue = normalize(parsed.value);
-      const isDuplicate = value.some((chip) =>
-        isEqual(normalize(chip.value), normalizedValue)
-      );
-      if (isDuplicate) return null;
-
-      const isValid = hasValidator ? await validateValue(parsed.value) : undefined;
-
-      return {
-        id: generateId(),
-        value: parsed.value,
-        label: parsed.label,
-        isValid,
-      };
-    },
-    [value, validateValue, hasValidator, parseInputFn, normalize, isEqual]
-  );
-
   const addChipsFromInput = useCallback(
     async (input: string) => {
       const values = containsDelimiter(input, delimiters)
         ? splitByDelimiters(input, delimiters)
         : [input];
 
-      const newChips: Chip<TValue>[] = [];
+      const parsedBatch: Pick<Chip<TValue>, 'value' | 'label'>[] = [];
+      const pendingNormalized: TValue[] = [];
+
       for (const val of values) {
-        const chip = await createChip(val);
-        if (chip) newChips.push(chip);
+        const parsed = parseInputFn(val);
+        if (parsed?.value == null) continue;
+
+        const normalizedValue = normalize(parsed.value);
+        const dupInValue = value.some((chip) =>
+          isEqual(normalize(chip.value), normalizedValue)
+        );
+        const dupInBatch = pendingNormalized.some((k) =>
+          isEqual(k, normalizedValue)
+        );
+        if (dupInValue || dupInBatch) continue;
+
+        pendingNormalized.push(normalizedValue);
+        parsedBatch.push(parsed);
       }
 
-      if (newChips.length > 0) {
-        const insertAt = insertPosition ?? value.length;
-        const newValue = [
-          ...value.slice(0, insertAt),
-          ...newChips,
-          ...value.slice(insertAt),
-        ];
-        onChange(newValue);
+      if (parsedBatch.length === 0) {
+        setInputValue('');
+        return;
+      }
 
-        if (insertPosition !== null) {
-          setInsertPosition(insertPosition + newChips.length);
-        }
+      const newChips: Chip<TValue>[] = await Promise.all(
+        parsedBatch.map(async (parsed) => {
+          const isValid = hasValidator
+            ? await validateValue(parsed.value)
+            : undefined;
+          return {
+            id: generateId(),
+            value: parsed.value,
+            label: parsed.label,
+            isValid,
+          };
+        })
+      );
+
+      const insertAt = insertPosition ?? value.length;
+      const newValue = [
+        ...value.slice(0, insertAt),
+        ...newChips,
+        ...value.slice(insertAt),
+      ];
+      onChange(newValue);
+
+      if (insertPosition !== null) {
+        setInsertPosition(insertPosition + newChips.length);
       }
 
       setInputValue('');
     },
-    [createChip, onChange, value, delimiters, insertPosition]
+    [
+      parseInputFn,
+      onChange,
+      value,
+      delimiters,
+      insertPosition,
+      normalize,
+      isEqual,
+      hasValidator,
+      validateValue,
+    ]
   );
 
   // -------------------------------------------------------------------------
