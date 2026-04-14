@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ChipProps } from '../chip-input/types';
 import { defaultFormatValue } from '../../utils/chip-utils';
 
@@ -14,7 +15,7 @@ import { defaultFormatValue } from '../../utils/chip-utils';
  * @param props - Component props
  * @returns The rendered chip element
  */
-export const Chip = <TValue = string,>({
+function ChipInner<TValue = string>({
   chip,
   isSelected,
   onDelete,
@@ -22,7 +23,7 @@ export const Chip = <TValue = string,>({
   formatValue = defaultFormatValue,
   classNames,
   disabled,
-}: ChipProps<TValue>) => {
+}: ChipProps<TValue>) {
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!disabled) {
@@ -83,5 +84,6 @@ export const Chip = <TValue = string,>({
       </button>
     </span>
   );
-};
+}
 
+export const Chip = memo(ChipInner) as typeof ChipInner;
