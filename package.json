@@ -55,9 +55,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:demo": "vite build --config vite.demo.config.ts",
     "build:lib": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preview:demo": "vite preview --config vite.demo.config.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
